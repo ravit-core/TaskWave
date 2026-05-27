@@ -20,11 +20,12 @@ done, and delete — all through natural conversation.
 4. [Architecture](#architecture)
 5. [Setup (10 minutes)](#setup-10-minutes)
 6. [First use](#first-use)
-7. [Agent design](#agent-design)
-8. [Failure handling](#failure-handling)
-9. [Project structure](#project-structure)
-10. [Troubleshooting](#troubleshooting)
-11. [Security notes](#security-notes)
+7. [Deployment](#deployment)
+8. [Agent design](#agent-design)
+9. [Failure handling](#failure-handling)
+10. [Project structure](#project-structure)
+11. [Troubleshooting](#troubleshooting)
+12. [Security notes](#security-notes)
 
 ---
 
@@ -40,7 +41,7 @@ done, and delete — all through natural conversation.
 | **Conversational AI workflows** | Single Gemini Live session retains turn history, uses tools, asks clarifying questions |
 | **Context-aware responses** | Session memory handles "the previous one", "my evening workout", "move the second one" |
 | **Storage** | Supabase Postgres (`tasks` table with RLS) |
-| **Auth: signup / login / session** | Supabase email-and-password, session via Next.js middleware (`proxy.ts`) |
+| **Auth: signup / login / session** | Supabase email-and-password; session held by Supabase browser client, surfaced via the `useUser` hook and a Bearer-token `fetch` wrapper that signs out on 401 |
 | **Interruption / barge-in** | Gemini Live VAD detects user speech mid-response → server emits `interrupted` event → client clears the audio queue |
 | **Multiple-task batching** | `create_tasks` tool: *"Create three tasks for tomorrow morning…"* lands all three in one round trip |
 | **Confirm before delete** | `delete_task` requires `confirmed=true`; system prompt mandates verbal confirmation first |
@@ -160,7 +161,7 @@ back to the browser so the kanban board re-renders without polling.
 | Tool | Min version |
 |---|---|
 | Node.js | 18 (tested on 20+) |
-| Python | 3.11+ (tested on 3.14) |
+| Python | 3.12.7 (pinned via `backend/.python-version` to match the Render runtime) |
 | Git | any recent |
 
 Free accounts:
@@ -323,6 +324,8 @@ uvicorn main:app --reload
 
 Verify: `curl http://localhost:8000/health` → `{"status":"healthy"}`.
 
+> **Python version note:** Render reads `backend/.python-version` (currently `3.12.7`). Keep your local venv on the same minor version to avoid wheel-mismatch surprises.
+
 ---
 
 ### STEP 6 — Frontend
@@ -355,11 +358,59 @@ Open **http://localhost:3000**.
 1. Land on `/` → click **Get started** (or **Sign in →**).
 2. **Create account** with email + password. (If email confirmation is ON in Supabase, check your inbox; otherwise you're signed in immediately.)
 3. You arrive at `/dashboard`. The board has three columns — **Today**, **Upcoming**, **Done** — and a voice panel on the right.
-4. Click the big mic button. Browser asks for microphone permission — allow it.
+4. Click the big mic button (labelled **Tap to talk**, with an idle pulse halo). Browser asks for microphone permission — allow it.
 5. The agent greets you. Try the commands from [§ Voice commands](#voice-commands-you-can-try) above.
 6. Tap the mic again to end the session.
 
 **Watch the board move.** When the agent updates or completes a task, the card slides between columns (powered by framer-motion `LayoutGroup`).
+
+---
+
+## Deployment
+
+This project is currently deployed with the **frontend on Vercel** and the **backend on Render** (free tier). Live URLs:
+
+- Frontend → `https://task-wave-five.vercel.app`
+- Backend → `https://taskwave-k798.onrender.com`
+
+### Render (backend)
+
+1. Connect the repo, root directory `backend/`.
+2. Build command: `pip install -r requirements.txt`
+3. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+4. Python version: Render reads `backend/.python-version` → `3.12.7`.
+5. **Environment variables** (set in the Render dashboard, not in `.env`):
+
+   ```env
+   CORS_ORIGINS=https://task-wave-five.vercel.app,http://localhost:3000
+   GOOGLE_API_KEY=<your key>
+   GEMINI_MODEL=gemini-2.5-flash-lite
+   GEMINI_LIVE_MODEL=gemini-2.5-flash-native-audio-latest
+   SUPABASE_URL=<from Supabase>
+   SUPABASE_KEY=<anon public>
+   SUPABASE_SERVICE_ROLE_KEY=<service_role>
+   ```
+
+   `CORS_ORIGINS` **must** include the exact Vercel origin (no trailing slash). Comma-separate multiple origins if you also need preview deployments.
+
+### Vercel (frontend)
+
+1. Import the repo, root directory `frontend/`. Framework auto-detects as Next.js.
+2. **Environment variables** (Settings → Environment Variables, for **Production**):
+
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=<from Supabase>
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon public>
+   NEXT_PUBLIC_BACKEND_URL=https://taskwave-k798.onrender.com
+   ```
+
+3. **Important:** `NEXT_PUBLIC_*` values are baked in at build time. After adding or changing any of them, trigger a fresh deployment (Deployments → ⋯ → Redeploy) — runtime changes alone do nothing.
+
+### Common deploy gotchas
+
+- **Login redirects straight back to `/auth`** — `NEXT_PUBLIC_BACKEND_URL` is missing in Vercel (frontend falls back to `localhost:8000`, request fails, 401 path runs), or `CORS_ORIGINS` on Render doesn't include the Vercel origin (preflight blocked).
+- **Render free tier cold start** — the first request after ~15 min idle takes 30–60 s while the dyno wakes. Mic clicks during this window will time out; just retry.
+- **`service_role` key** — never put this in any `NEXT_PUBLIC_*` var or in the frontend repo settings. Render only.
 
 ---
 
@@ -453,9 +504,8 @@ TaskWave/
 │   │       ├── layout.tsx
 │   │       └── page.tsx         Today / Upcoming / Done + voice panel
 │   ├── components/
-│   │   ├── dashboard/           mic-button · agent-status · board-column ·
-│   │   │                        task-card · transcript-overlay · voice-wave
-│   │   └── ui/button.tsx        Graphite & Coral primitive
+│   │   └── dashboard/           mic-button · agent-status · board-column ·
+│   │                            task-card · transcript-overlay · voice-wave
 │   ├── lib/
 │   │   ├── voice-client.ts      WS + AudioWorklet + PCM playback queue + auto-reconnect
 │   │   ├── tasks-api.ts         typed listTasks()
@@ -466,7 +516,8 @@ TaskWave/
 │   ├── public/
 │   │   ├── dashboard.png        screenshot used on landing
 │   │   └── worklets/voice-recorder.js   mic → 16 kHz PCM16 worklet
-│   ├── proxy.ts                 Next middleware: /dashboard auth guard
+│   ├── proxy.ts                 (defined-but-unregistered Next middleware draft —
+│   │                             auth is currently enforced client-side via lib/api.ts)
 │   └── .env.local               ← you create
 │
 └── README.md
@@ -481,7 +532,7 @@ TaskWave/
 | Mic flips to error on click | `GOOGLE_API_KEY` missing or invalid (rotated/leaked keys get auto-revoked by Google). Get a fresh one at https://aistudio.google.com/apikey |
 | `WebSocket 4001` close | JWT expired or Supabase keys mismatched between backend `.env` and frontend `.env.local`. Sign out and back in. |
 | Mic connects but agent never speaks | Browser blocked mic — check the URL-bar permission icon |
-| Signup completes but `/dashboard` redirects to `/auth` | Email confirmation is on in Supabase. Either click the confirmation link or toggle confirmation off (STEP 2) |
+| Signup completes but `/dashboard` redirects to `/auth` | Two possible causes: (a) Email confirmation is on in Supabase — click the link or toggle it off (STEP 2). (b) In production, the frontend can't reach the backend (wrong `NEXT_PUBLIC_BACKEND_URL`) or CORS is blocking the call (`CORS_ORIGINS` on Render doesn't include your Vercel URL). `lib/api.ts` treats any 401-equivalent failure as auth-expired and bounces you to `/auth`. See [Deployment](#deployment). |
 | Tool calls succeed but tasks don't appear | Frontend refreshes the list on every `tool_result`. If they're created but invisible, check the bucket logic — unscheduled tasks land in **Today**, overdue scheduled tasks also in **Today**. |
 | Agent gets "tomorrow morning" wrong | Set `profiles.timezone` for your user (it auto-syncs from the browser on dashboard mount). Default is `UTC`. |
 | Backend `ModuleNotFoundError` | Forgot `source venv/bin/activate` before `pip install` |
