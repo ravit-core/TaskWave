@@ -170,7 +170,7 @@ export default function DashboardPage() {
         <div className="mx-auto max-w-7xl px-5 md:px-8 h-14 flex items-center justify-between">
           <div className="flex items-baseline gap-2 min-w-0">
             <h1 className="font-serif text-2xl italic tracking-tight text-ink leading-none shrink-0">
-              TaskWave
+              TaskWave AI
             </h1>
             <span className="hidden sm:inline text-sm text-ink-soft truncate">
               : Voice Controlled Task Manager
@@ -294,7 +294,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Mic */}
-              <div className="px-5 pt-5 pb-4 flex flex-col items-center gap-3 shrink-0">
+              <div className="px-5 pt-5 pb-4 flex flex-col items-center gap-6 shrink-0">
                 <MicButton state={state} onPress={onMicPress} />
                 {errorMsg && (
                   <p className="text-xs text-danger text-center max-w-[20rem]">

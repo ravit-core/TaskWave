@@ -87,7 +87,7 @@ export default function HomePage() {
 
       {/* ── Header ───────────────────────────────────────────────── */}
       <header className="mx-auto max-w-5xl px-5 md:px-8 py-6 flex items-center justify-between">
-        <span className="font-serif text-xl italic tracking-tight">TaskWave</span>
+        <span className="font-serif text-xl italic tracking-tight">TaskWave AI</span>
         <Link
           href="/auth"
           className="text-sm text-ink-soft hover:text-ink transition-colors"

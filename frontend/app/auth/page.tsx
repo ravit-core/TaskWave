@@ -77,7 +77,7 @@ function AuthInner() {
       >
         <div className="mb-8 text-center">
           <span className="font-serif text-2xl italic tracking-tight">
-            TaskWave
+            TaskWave AI
           </span>
         </div>
 
