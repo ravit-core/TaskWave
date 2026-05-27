@@ -1,0 +1,21 @@
+# Web framework
+fastapi==0.115.5
+uvicorn[standard]==0.34.0
+
+# Config & validation
+pydantic==2.10.5
+pydantic-settings==2.7.0
+
+# Google Gemini (Live bidi audio + text)
+google-genai==1.56.0
+
+# HTTP & WebSockets
+httpx==0.28.1
+websockets==14.1
+
+# Supabase (auth & Postgres) — >=2.11 needed so httpx pin doesn't conflict
+# with google-genai.
+supabase>=2.11.0,<3.0.0
+
+# Utilities
+python-dotenv==1.0.1

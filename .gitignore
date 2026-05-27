@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+node_modules/
+.env
+/.venv
+/.next
+/dist
+.idea/
+.vscode/
+*.sqlite3
+*.db

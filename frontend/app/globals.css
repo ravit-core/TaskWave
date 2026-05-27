@@ -1,0 +1,346 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────────────
+   TaskWave AI — Design System
+   Palette: Graphite & Coral (warm mid-tone, real-life, anti-cliché)
+   Default mode: light. Dark mode: warm graphite, never pure black.
+   ────────────────────────────────────────────────────────────────── */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Theme tokens — exposed to Tailwind v4 as utility classes
+   (e.g. bg-bg, text-ink, bg-accent, font-serif, rounded-lg) */
+@theme {
+  /* Surfaces */
+  --color-bg: #faf7f2;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f2ede5;
+  --color-surface-sunk: #ede7dc;
+
+  /* Text */
+  --color-ink: #2a2d34;
+  --color-ink-soft: #6b6f78;
+  --color-ink-faint: #a8abb2;
+  --color-on-ink: #faf7f2;
+
+  /* Lines & dividers */
+  --color-line: #e5dfd4;
+  --color-line-soft: #ede7dc;
+  --color-line-strong: #d4ccb8;
+
+  /* Accents — warm */
+  --color-accent: #e08b7a;
+  --color-accent-deep: #c97560;
+  --color-accent-soft: #f5d9d1;
+
+  /* Secondary accents */
+  --color-sage: #7a9586;
+  --color-sage-soft: #d6e0da;
+  --color-ochre: #c89b5c;
+  --color-ochre-soft: #ecdcc1;
+
+  /* Status */
+  --color-success: #7a9586;
+  --color-warning: #c89b5c;
+  --color-danger: #b85450;
+  --color-info: #6b8aa8;
+
+  /* Radii — slightly organic, never pill-only */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-sans: var(--font-geist-sans), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: var(--font-instrument-serif), 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Shadows — warm-tinted, never harsh */
+  --shadow-xs: 0 1px 2px rgba(42, 45, 52, 0.04);
+  --shadow-sm: 0 1px 2px rgba(42, 45, 52, 0.04), 0 1px 3px rgba(42, 45, 52, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(42, 45, 52, 0.06), 0 2px 4px -2px rgba(42, 45, 52, 0.04);
+  --shadow-lg: 0 10px 25px -5px rgba(42, 45, 52, 0.08), 0 8px 10px -6px rgba(42, 45, 52, 0.04);
+  --shadow-xl: 0 24px 40px -12px rgba(42, 45, 52, 0.14);
+  --shadow-glow-accent: 0 0 0 4px rgba(224, 139, 122, 0.18);
+
+  /* Motion — calm, organic, never neon-jitter */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 360ms;
+  --dur-breath: 1800ms;
+}
+
+/* ──── Dark mode overrides ────
+   Warm graphite background, cream text. Same accent family,
+   slightly brighter to read against the deeper surface. */
+.dark {
+  --color-bg: #1a1b1e;
+  --color-surface: #222428;
+  --color-surface-soft: #2a2d33;
+  --color-surface-sunk: #16171a;
+
+  --color-ink: #efeae0;
+  --color-ink-soft: #a8a39a;
+  --color-ink-faint: #6b675f;
+  --color-on-ink: #1a1b1e;
+
+  --color-line: #33363d;
+  --color-line-soft: #2a2d33;
+  --color-line-strong: #3d4047;
+
+  --color-accent: #e89b89;
+  --color-accent-deep: #d17a68;
+  --color-accent-soft: rgba(232, 155, 137, 0.14);
+
+  --color-sage: #92a89a;
+  --color-sage-soft: rgba(146, 168, 154, 0.14);
+  --color-ochre: #d6a973;
+  --color-ochre-soft: rgba(214, 169, 115, 0.14);
+
+  --color-success: #92a89a;
+  --color-warning: #d6a973;
+  --color-danger: #d8675f;
+  --color-info: #8aa5c2;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.28), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.36), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 24px 40px -12px rgba(0, 0, 0, 0.5);
+  --shadow-glow-accent: 0 0 0 4px rgba(232, 155, 137, 0.22);
+}
+
+/* ──── Legacy alias vars ────
+   Existing components reference these names. Map to new tokens so
+   pre-Phase 6/8 pages still render coherently during transition.
+   Will be removed once dashboard + marketing are rebuilt. */
+:root {
+  --background: var(--color-bg);
+  --background-secondary: var(--color-surface-soft);
+  --background-tertiary: var(--color-surface-sunk);
+  --foreground: var(--color-ink);
+  --foreground-secondary: var(--color-ink-soft);
+  --primary: var(--color-ink);
+  --primary-hover: #1d1f24;
+  --primary-light: #3a3d44;
+  --accent: var(--color-accent);
+  --accent-light: var(--color-accent-deep);
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --error: var(--color-danger);
+  --info: var(--color-info);
+  --border: var(--color-line);
+  --border-light: var(--color-line-soft);
+
+  /* Glass tints — give every layer its own warmth so the eye can read
+     the hierarchy: page cream → column sand → card white → dark panel.
+     Refract the ambient blobs without becoming a milky uniform wash. */
+  --glass-bg: rgba(255, 250, 242, 0.66);
+  --glass-bg-soft: rgba(228, 215, 192, 0.48);   /* sandy, distinct from page cream */
+  --glass-border: rgba(196, 184, 158, 0.55);
+  --glass-border-soft: rgba(196, 184, 158, 0.45);
+  --glass-dark-border: rgba(255, 247, 235, 0.10);
+}
+
+.dark {
+  --primary-hover: #f5f0e6;
+  --primary-light: #c9c4ba;
+  --glass-bg: rgba(34, 36, 40, 0.66);
+  --glass-bg-soft: rgba(48, 50, 56, 0.55);
+  --glass-border: rgba(61, 64, 71, 0.75);
+  --glass-border-soft: rgba(61, 64, 71, 0.55);
+  --glass-dark-border: rgba(255, 247, 235, 0.10);
+}
+
+/* ──── Glass utilities ────────────────────────────────────────────────
+   `.glass`       — warm cream (top bar, primary panels)
+   `.glass-soft`  — sandy warm tint (board columns; lets white cards pop)
+   `.glass-dark`  — translucent dark graphite (voice panel — quiet, focused)
+   All warm-tinted, never frosted-pure-white. */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--glass-border);
+}
+.glass-soft {
+  background: var(--glass-bg-soft);
+  backdrop-filter: blur(10px) saturate(135%);
+  -webkit-backdrop-filter: blur(10px) saturate(135%);
+  border: 1px solid var(--glass-border-soft);
+}
+.glass-dark {
+  background: rgba(36, 39, 46, 0.78);
+  backdrop-filter: blur(20px) saturate(145%);
+  -webkit-backdrop-filter: blur(20px) saturate(145%);
+  border: 1px solid var(--glass-dark-border);
+  color: rgba(239, 234, 224, 0.95);
+
+  /* Re-map text/border tokens for children so utilities like
+     `text-ink-soft`, `border-line`, `bg-surface-soft` adapt to the
+     dark surface without prop-drilling. We deliberately do NOT touch
+     --color-ink, --color-on-ink, or accent colors — the MicButton's
+     state-driven fills need to stay correct. */
+  --color-ink-soft: rgba(239, 234, 224, 0.72);
+  --color-ink-faint: rgba(239, 234, 224, 0.46);
+  --color-line: rgba(255, 247, 235, 0.10);
+  --color-line-soft: rgba(255, 247, 235, 0.06);
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-surface-soft: rgba(255, 255, 255, 0.06);
+  --color-bg: rgba(0, 0, 0, 0.22);
+}
+
+/* ──── Base ──── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-feature-settings: 'ss01', 'cv11';
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Wordmark / serif accents */
+.font-serif,
+.wordmark {
+  font-family: var(--font-serif);
+  font-feature-settings: 'liga', 'dlig';
+  letter-spacing: -0.01em;
+}
+
+/* ──── Selection ──── */
+::selection {
+  background: var(--color-accent-soft);
+  color: var(--color-ink);
+}
+
+/* ──── Scrollbar ──── */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-line-strong);
+}
+
+/* ──── Motion primitives ──── */
+@keyframes settle-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes settle-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.99);
+  }
+}
+
+/* Breathing pulse for the voice mic — slow, organic, never strobe.
+   1.8s breath cycle, scales 1.0 → 1.04, ring opacity 0 → 0.4 → 0. */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(224, 139, 122, 0);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 0 0 14px rgba(224, 139, 122, 0);
+  }
+  25% {
+    box-shadow: 0 0 0 6px rgba(224, 139, 122, 0.28);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Used by the landing-page hero sound-wave backdrop. Each bar gets a
+   different duration + delay applied inline, so the wave reads as
+   organic rather than a clocked grid pulse. scaleY is GPU-cheap. */
+@keyframes heroWave {
+  0%, 100% { transform: scaleY(0.18); }
+  50% { transform: scaleY(0.85); }
+}
+
+.animate-settle-in {
+  animation: settle-in var(--dur-slow) var(--ease-out-soft);
+}
+.animate-breathe {
+  animation: breathe var(--dur-breath) var(--ease-in-out-soft) infinite;
+}
+
+/* ──── Global transition policy ────
+   No more "transition: all" — it's the AI-cliché tell. Only
+   transition specific props. */
+button, a, input, textarea, select {
+  transition:
+    background-color var(--dur-base) var(--ease-out-soft),
+    border-color var(--dur-base) var(--ease-out-soft),
+    color var(--dur-base) var(--ease-out-soft),
+    transform var(--dur-base) var(--ease-out-soft),
+    box-shadow var(--dur-base) var(--ease-out-soft),
+    opacity var(--dur-base) var(--ease-out-soft);
+}
+
+/* Focus ring — coral, soft, never electric blue */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-glow-accent);
+  border-radius: var(--radius-sm);
+}
+
+/* Reduced motion respect */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ──── Responsive base type ──── */
+@media (max-width: 640px) {
+  html { font-size: 14px; }
+}
+@media (min-width: 641px) and (max-width: 1024px) {
+  html { font-size: 15px; }
+}
+@media (min-width: 1025px) {
+  html { font-size: 16px; }
+}
